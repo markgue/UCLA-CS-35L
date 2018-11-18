@@ -1,0 +1,149 @@
+Mark Guevara
+704962920
+CS35L
+TA: Zhaowei Tan
+
+Assignment 5: lab.txt
+===================================
+1. 
+======
+I started by writing tr2b.c. The program simiply checks for errors in
+the input, then if the input is valid loops through the provided file and
+replaces each character with the corresponding character in 'to' and 'from'.
+It uses putchar and getchar for input and output.
+
+2. 
+======
+To write tr2u.c, I took the code from tr2b.c and swapped out every instance
+of getchar, putchar, and fprintf with read and write. 
+
+3. 
+======
+To test the speed of the programs, I first created a 5,000,000 byte (5MB) 
+file using the the following command:
+tr -dc '[:graph:]' < /dev/urandom | head -c 5000000 > input.txt
+(note: [:graph:] contains only alphanumeric characters and symbols)
+
+Using -ls -l confirms that the file is 5000000 bytes:
+ls -l
+...
+-rw-r--r-- 1 guevara csugrad 5000000 May 10 20:41 input.txt
+...
+
+I then ran tests on each of the commands as follows:
+
+Copying a file to another
+-------------------------
+As shown in the outputs below, the buffered translation performs significantly
+better than the unbuffered translation. The buffered version calls read and
+write less than 100 times each, while the unbuffered version calls read and
+write all 5,000,000 times. 
+
+
+strace -c ./tr2b 'abc' '123' < input.txt > tr2bout.txt
+
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 88.27    0.000429           6        77           write
+ 11.73    0.000057           1        79           read
+  0.00    0.000000           0         2           open
+  0.00    0.000000           0         2           close
+  0.00    0.000000           0         4           fstat
+  0.00    0.000000           0        10           mmap
+  0.00    0.000000           0         3           mprotect
+  0.00    0.000000           0         1           munmap
+  0.00    0.000000           0         1           brk
+  0.00    0.000000           0         1         1 access
+  0.00    0.000000           0         1           execve
+  0.00    0.000000           0         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.000486                   182         1 total
+
+
+strace -c ./tr2u 'abc' '123' < input.txt > tr2uout.txt
+
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 56.60    0.557389           0   5000000           write
+ 43.40    0.427477           0   5000002           read
+  0.00    0.000000           0         2           open
+  0.00    0.000000           0         2           close
+  0.00    0.000000           0         2           fstat
+  0.00    0.000000           0         8           mmap
+  0.00    0.000000           0         3           mprotect
+  0.00    0.000000           0         1           munmap
+  0.00    0.000000           0         1           brk
+  0.00    0.000000           0         1         1 access
+  0.00    0.000000           0         1           execve
+  0.00    0.000000           0         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.984866              10000024         1 total
+
+
+Copying a file to terminal
+--------------------------
+Writing to terminal is slightly less efficent, as the buffered version makes
+nearly 5000 write calls, but it is still significantly faster than the
+unbuffered version. 
+
+
+strace -c ./tr2b 'abc' '123' < input.txt
+
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.001432           0      4883           write
+  0.00    0.000000           0        79           read
+  0.00    0.000000           0         2           open
+  0.00    0.000000           0         2           close
+  0.00    0.000000           0         4           fstat
+  0.00    0.000000           0        10           mmap
+  0.00    0.000000           0         3           mprotect
+  0.00    0.000000           0         1           munmap
+  0.00    0.000000           0         1           brk
+  0.00    0.000000           0         1         1 access
+  0.00    0.000000           0         1           execve
+  0.00    0.000000           0         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.001432                  4988         1 total
+
+
+strace -c ./tr2u 'abc' '123' < input.txt
+
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 56.03    0.398399           0   5000001         1 write
+ 43.97    0.312595           0   5000002           read
+  0.00    0.000000           0         2           open
+  0.00    0.000000           0         2           close
+  0.00    0.000000           0         2           fstat
+  0.00    0.000000           0         8           mmap
+  0.00    0.000000           0         3           mprotect
+  0.00    0.000000           0         1           munmap
+  0.00    0.000000           0         1           brk
+  0.00    0.000000           0         1         1 access
+  0.00    0.000000           0         1           execve
+  0.00    0.000000           0         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.710994              10000025         2 total
+
+
+4.
+======
+
+Just like the strace tests, tr2b performs significantly better than tr2u. 
+
+time ./tr2b 'abc' '123' < input.txt > tr2bout.txt
+
+real    0m0.302s
+user    0m0.250s
+sys     0m0.009s
+
+time ./tr2u 'abc' '123' < input.txt > tr2uout.txt
+
+real    0m8.860s
+user    0m1.126s
+sys     0m7.692s
+
+
+
+

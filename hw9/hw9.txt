@@ -1,0 +1,125 @@
+Mark Guevara
+704962920
+CS35L
+TA: Zhaowei Tan
+
+Assignment 9: hw9.txt
+===================================
+1. Maintain a hw9.txt
+---
+This is the hw9.txt file!
+
+
+2. Check out the version, new branch "quote"
+---
+cd diffutils
+git checkout -b 'quote' 'v3.0'
+
+
+3. Install new branch with patch
+---
+I ran the following command: 
+patch -p1 < ../quote-3.0-patch.txt
+
+Output:
+patching file src/analyze.c
+patching file src/cmp.c
+patching file src/context.c
+patching file src/diff.c
+patching file src/diff3.c
+patching file src/dir.c
+patching file src/sdiff.c
+patching file src/side.c
+patching file src/util.c
+
+
+4. Learn Emacs add-change-log-entry-other-window (C-x 4 a)
+---
+I read through the provided link to learn the commands.
+
+
+5. Use emacs to make a ChangeLog
+---
+I opened emacs, then created a ChangeLog file with C-x 4 a.
+The ChangeLog contains the following information:
+
+2018-06-07  Mark Andrew Guevara  <guevara@lnxsrv03.seas.ucla.edu>
+
+        * Updated quotation marks stylization from `---' to '---' in the
+        following files:
+        * src/analyze.c
+        * src/cmp.c
+        * src/context.c
+        * src/diff.c
+        * src/diff3.c
+        * src/dir.c
+        * src/sdiff.c
+        * src/side.c
+        * src/util.c
+
+
+6. Commit changes
+---
+I ran the commands:
+git add .
+git commit -F ChangeLog
+
+The command "git log" confirms that the patch was applied. 
+
+
+7. git format-patch
+---
+git format-patch --stdout -1 > ../formatted-patch.txt
+
+
+8. Verify partner's files
+---
+I created a branch "partner" then applied the patch:
+git checkout -b 'partner' 'v3.0'
+
+I then used my partner's formatted-patch.txt (which I renamed to partner-formatted-patch.txt) to apply the patch:
+git am < partner-formatted-patch.txt
+
+./bootstrap
+./configure
+make
+make check
+
+The patch worked.
+
+I verified the changes the same way as in the lab, with ./src/diff . - and ./src/diff --help.
+Both had the correct quotations. 
+
+
+9.
+---
+I ran the command "make distdir", which created a folder diffutils-3.0.1-0407.
+The file diffutils-3.0.1-0407/ChangeLog has my patch, meaning everything worked:
+
+2018-06-07  Mark Andrew Guevara  <guevara@lnxsrv03.seas.ucla.edu>
+
+        2018-06-07  Mark Andrew Guevara  <guevara@lnxsrv03.seas.ucla.edu>
+                * Updated quotation marks stylization from `---' to '---' in the
+                following files:
+                * src/analyze.c
+                * src/cmp.c
+                * src/context.c
+                * src/diff.c
+                * src/diff3.c
+                * src/dir.c
+                * src/sdiff.c
+                * src/side.c
+                * src/util.c
+
+
+10.
+---
+I entered the folder and ran gitk:
+cd ~eggert/src/gnu/emacs
+gitk
+
+This opened a window through Xming, which I had previously configured with PuTTY.
+I scrolled through and found patches around the date 2015-01-25.
+
+There is a merge on 2015-01-25 by joakim Verona:
+Merge branch 'master' into xwidget

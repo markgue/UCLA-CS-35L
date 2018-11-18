@@ -1,0 +1,14 @@
+Mark Guevara
+704962920
+CS35L
+TA: Zhaowei Tan
+
+Assignment 9: gitk-description.txt
+===================================
+The top left corner shows a visual of the different branches, with the left-most branch
+being the master branch. Each merge connects two of the branches across the vertical lines,
+and each commit is recorded with a name, email, and date to the right. 
+The bottom right subwindow shows the patch information, giving the patch hash as well as the hashes
+of the parent and child commits. Below this information, the diff file is displayed and can be searched
+through using the search bar. The main window on the bottom right shows all files that have been modified
+in the selected commit.

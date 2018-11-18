@@ -1,0 +1,88 @@
+Mark Guevara
+704962920
+CS35L
+TA: Zhaowei Tan
+
+Assignment 3 Log
+=================================
+
+1.
+----------
+Initially, I used wget to grab each of the required files 
+and placed them all into the same folder:
+wget ftp://ftp.gnu.org/gnu/coreutils/coreutils-8.29.tar.xz
+wget ftp://ftp.gnu.org/gnu/coreutils/coreutils-8.29.tar.xz.sig
+wget https://ftp.gnu.org/gnu/gnu-keyring.gpg
+
+I then ran the given command: 
+gpg --verify --keyring ./gnu-keyring.gpg coreutils-8.29.tar.xz.sig
+
+This gave the following output:
+gpg: Signature made Wed 27 Dec 2017 10:29:05 AM PST using RSA key ID 306037D9
+gpg: checking the trustdb
+gpg: no ultimately trusted keys found
+gpg: Good signature from "Pádraig Brady <P@draigBrady.com>"
+gpg:                 aka "Pádraig Brady <pbrady@redhat.com>"
+gpg:                 aka "Pádraig Brady <pixelbeat@gnu.org>"
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 6C37 DC12 121A 5006 BC1D  B804 DF6F D971 3060 37D9
+
+This information means that the file was signed by Pádraig Brady, but there
+is no signiture from a trusted third party used to verify that Brady was
+indeed the person who signed the document. Someone else may have claimed
+to be him and spoofed his signature, but since the file was from a 
+trusted source (the gnu webside itself) this is very unlikely.
+It is up to users to decide whether to trust that the signature is valid.
+
+2.
+----------
+To extract the tar .file, I used:
+tar -xvf coreutils-8.29.tar.xz
+This extracts all of the files and places them in the folder "coreutils-8.29"
+After entering this directory, I read through the README and INSTALL files and
+learned that I needed to run the following commands to install into
+a custom directory I created earlier, tempCoreutils:
+./configure --exec-prefix=/u/cs/ugrad/guevara/Desktop/CS35L/hw3/tempCoreutils
+make
+make install
+The first command configures the package for the system and specifies the 
+build path, the "make" command compiles the program, and "make install"
+installs the compiled program into the assigned directory. 
+
+3.
+----------
+After switching directories to ./tempCoreutils, running the command
+./bin/ls -a -A
+reproduces the bug, and outputs 4 the files ".  ..  bin  libexec"
+when the output should simply be "bin libexec"
+
+4.
+----------
+To patch the file, I navigated to my ./hw3/coreutils-8.29 directory.
+I then created a file patchfile.patch and copied the contents from the 
+I then ran the command:
+patch -p1 <patchfile.patch
+which automatically installed each of the patches.
+
+5.
+----------
+Initially, running "make" threw a bunch of errors, so I ran "autoreconf -f -i"
+as suggested on Piazza then ran "make" again, and it then worked.
+Only the few files related to the patch file were modified, so the make file
+only changed those files. 
+
+6.
+----------
+Moving back to my ./hw3 home directory, I ran each of the following commands:
+./tempCoreutils/bin/ls -a -A
+./coreutils-8.29/bin/ls -a -A
+
+The first command was still functioning incorrectly, and includes the ". .."
+directories in the list. However, the updated ls command in coreutils-8.29
+does not have the same issue, as it has been patched to work correctly. 
+
+
+
+
+

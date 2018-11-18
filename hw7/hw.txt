@@ -1,0 +1,53 @@
+Mark Guevara
+704962920
+CS 35L
+TA: Zhaowei Tan
+
+Lab 7: hw.txt
+====================
+
+1.
+-----
+If another team were observing the bytes going across the network, the network
+would still be secure. All of the data transferred over the network is 
+encrypted using the private key and public key pairing. Since only the public
+key is ever sent over the network, there is no way that a user reading bytes
+can decrypt the data. The private key is only ever recorded on the client side.
+
+(1)
+However, if an outside team were using a keylogger, the data would no longer be
+secure as they could record when a user enters the necessary private key 
+password to decrypt the data. If password authentication were disabled after 
+key generation by modifying the file /etc/ssh/sshd_config, the password would 
+only need to be used on the first login. If the keylogger was not running at 
+the time of first login, there would be no way for the outside team to access
+the private key, and the network would stil be encrypted. 
+
+(2)
+If the outside team had access to the boot USB, the network wouldn't be secure.
+Private keys are stored in the .ssh folder, so if there were no restrictions on
+this folder, a user with physical access to the USB could copy these files and
+save the private keys, allowing them to decrypt any data sent over the network.
+
+
+2.
+-----
+The gpg2 --verify command works by verifying the signature by using the public
+key associated with the user who created the file to compare if the signature
+matches the contents of a file. Since the signature is created using a private
+key, it is assumed to be from the source. However, if an attacker were to 
+insert their own public key into the file and sign it using that key while 
+still filling out the same information (name, email, etc.), it can look like
+the original person created the file even though someone else tampered with
+the contents. The command only really ensures that the public key and the 
+signature match. 
+
+To fix the verification issue, a trusted third party can be used as a middle
+man to ensure that the correct public key is used every time for verification.
+In addition, the creator of a file can post their public key on a website 
+that is associated with them, so users can then compare the signature knowing
+that the source of the key is the creator. 
+
+
+
+

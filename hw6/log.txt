@@ -1,0 +1,60 @@
+Mark Guevara
+704962920
+CS35L
+TA: Zhaowei Tan
+
+Assignment 6: log.txt
+===================================
+
+First I checked the version of the sort function (on SEASnet lnxsrv01):
+sort --version
+sort (GNU coreutils) 8.24
+
+This is a newer version than the required 8.6, so it will work with 
+multiple threads.
+
+To create a 10,000,000 file of floating point numbers, I used /dev/urandom,
+od, and tr. Since there are 4 bytes per single-precision float, we
+must read in 40,000,000 bytes in total then sort the values. Reading through
+man od revealed that "-t fF" would output floats.
+
+od -An -t fF -N 40000000 < /dev/urandom | tr -s [:blank:] '\n' > randfloats.txt
+
+The file contains a newline at the very start, which I manually
+removed using vim.
+
+Now, I tested sort with the random input floats:
+
+time -p sort -g randfloats.txt > /dev/null
+real 19.47
+user 103.71
+sys 0.36
+
+time -p sort -g --parallel=1 randfloats.txt > /dev/null
+real 98.43
+user 98.25
+sys 0.18
+
+time -p sort -g --parallel=2 randfloats.txt > /dev/null
+real 51.92
+user 98.49
+sys 0.22
+
+time -p sort -g --parallel=4 randfloats.txt > /dev/null
+real 29.63
+user 98.71
+sys 0.29
+
+time -p sort -g --parallel=8 randfloats.txt > /dev/null
+real 19.06
+user 104.17
+sys 0.38
+
+
+The results show that while the user time on the CPU remains roughly the same
+throughout every sort (i.e. the total amount of time the CPU must run to
+process the data), when that work is spread across multiple cores the real
+time goes down significantly. As expected, greater parallelism leads to better
+real time results. It also appears that the sort function is parallelized
+by default, as the real time of the default sort most closely matches that
+of the --parallel=8 sort. 

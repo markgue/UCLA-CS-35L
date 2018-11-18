@@ -1,0 +1,59 @@
+Mark Guevara
+704962920
+CS35L
+TA: Zhaowei Tan
+
+Assignment 3 Log
+=================================
+
+Q1.
+----------
+The patch has almost no effect on the performance of ls since it only removes
+an if statement that address a very specific edge case and adds a test file
+and news about the change. As a result, the majority of ls is unaffected, 
+so it runs almost exactly as it did before.
+
+Q2.
+----------
+Since the patch is so small, the only real issue that could arise is if the
+company uses code that relied on the bugged functionality of "ls -a -A".
+Any existing code would need to be changed so that . and .. would still be
+included by ls.
+(However, seeing as this bug was introduced in 2004 according to Eggert, and
+was not reported until 2018, it is unlikely that there is much code that
+relies on this unintentional functionality.)
+
+Q3.
+----------
+When invoked on an empty file, randline.py gives the following error:
+
+Traceback (most recent call last):
+  File "randline.py", line 70, in <module>
+    main()
+  File "randline.py", line 64, in main
+    sys.stdout.write(generator.chooseline())
+  File "randline.py", line 34, in chooseline
+    return random.choice(self.lines)
+  File "/usr/local/cs/Python-2.7.9/lib/python2.7/random.py",line 275, in choice
+    return seq[int(self.random()*len(seq))] # raises IndexError if seq is empty
+IndexError: list index out of range
+
+This is because the script functions by creating a list of all of the lines
+contained within the file then randomly selecting one to be the output. 
+Since a file like /dev/null does not contain any lines, the list of lines
+is empty, so the script has nothing to select and crashes. 
+ 
+
+Q4.
+----------
+When invoked using Python 3, randline.py gives the following error:
+
+  File "randline.py", line 65
+    except IOError as (errno, strerror):
+                      ^
+SyntaxError: invalid syntax
+
+This is because the syntax of Python 3 is different than in Python 2.
+Python 3 does not support iteration with multiple exceptions, so the line 
+must be rewritten as
+except IOError as err:

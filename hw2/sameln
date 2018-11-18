@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# Take the first argument as the target directory
+dir=$1
+# Create a sorted list of the files in that directory, 
+# prioritizing files starting with '.'
+HIDDENFILES=`ls -1a $dir | grep "^\." | sort`
+OTHERFILES=`ls -1 $dir | sort`
+FILES="$HIDDENFILES $OTHERFILES"
+
+#echo $FILES
+
+# Loop through each file in the list
+for file in $FILES; do
+    # Continue if it is not a regular file
+    if [ ! -f "$dir/$file" ]; then
+        continue
+    fi
+    # Report if it is not readable and continue
+    if [ ! -r "$dir/$file" ]; then 
+        echo "The file \"$file\" is not readable."
+        continue
+    fi
+    # Go through all other valid files; since the first loop is done in order, 
+    # revisiting pairs that have already been replaced is not an issue
+    # Repeated pairs will already match to the first occurrence of the file, 
+    # so no actual changes will be made
+    for compFile in $FILES; do
+        # Check if it is a file, readable, 
+        # and not the same exact file as the original file
+        if [ ! -f "$dir/$compFile" ] || [ ! -r "$dir/$compFile" ] \
+        || [ "$file" = "$compFile" ]; then
+            continue
+        fi
+        # Compare the contents
+        cmp -s "$dir/$file" "$dir/$compFile"
+        # If the files have the same contents, 
+        # replace the second one with a hardlink
+        if [ $? -eq 0 ]; then
+            ln -f "$dir/$file" "$dir/$compFile" 
+        fi
+    done
+done

@@ -1,0 +1,146 @@
+Mark Guevara
+704962920
+CS35L
+TA: Zhaowei Tan
+
+Assignment 2 Log
+=================================
+
+Initial setup
+===========
+Before writing any scripts, I performed the suggested commands and set up the environment:
+export LC_ALL='C'
+
+I then copied and sorted the words file:
+cp /usr/share/dict/words words
+sort -o words words
+
+I then ran each of the given commands on assign2.html, which was retrieved using the command:
+wget web.cs.ucla.edu/classes/spring18/cs35L/assign/assign2.html
+
+Commands
+===========
+
+tr -c 'A-Za-z' '[\n*]' < assign2.html
+---
+Prints all words line by line, replacing those that do not contain just the characters A-Z or a-z with empty lines. 
+This is because the -c parameter takes the complement of 'A-Za-z', so all other characters are replaced. 
+
+tr -cs 'A-Za-z' '[\n*]' < assign2.html
+---
+The additional -s parameter squeezes repeats, so all of the empty spaces disappear,
+leaving a list of all of the words containing just A-Z or a-z in the html file. 
+
+tr -cs 'A-Za-z' '[\n*]' < assign2.html | sort 
+---
+The piped sort takes the previous input and sorts the words alphabetically. Notably, there are still repeats of words,
+but not of empty spaces. 
+
+tr -cs 'A-Za-z' '[\n*]' < assign2.html | sort -u 
+---
+The additional -u parameter means the sort only outputs unique strings, so there are no repeats from the previous output. 
+
+
+tr -cs 'A-Za-z' '[\n*]' < assign2.html | sort -u | comm - words
+---
+The comm command lists three columns: the first shows lines unique to the sorted list, the second shows the words unique to
+the dictionary (which is almost all of the dictionary), and column 3 lists the common words between the two files.
+
+
+tr -cs 'A-Za-z' '[\n*]' < assign2.html | sort -u | comm -23 - words
+---
+The -23 parameters mean columns 2 and 3 are surpressed, leaving a list of words that are unique to assign2.html and are not
+contained within the words file. As suggested, it works as a crude spellchecker by showing all of the possible spelling errors. 
+
+
+Hawaiian Words
+===========
+Script
+-----
+I got the html page using the command:
+wget mauimapp.com/moolelo/hwnwdseng.htm
+
+The main commands I used to write the script were tr, sed, and grep.
+
+I first noticed that the Hawaiian and English words are formatted between <td></td> markers, so I used
+grep '<td>.\{1,\}<\/td?>'
+to extract just those lines.
+
+From there, every other line is a Hawaiian word, starting at the second line. To remove all of the lines, I used
+sed '1d;n;d;'
+Which first deletes the first line, then deletes every other line. 
+
+To remove the HTML formatting, I used:
+sed 's/</\{0,5\}>//g'
+This command finds any text between a pair <> and deletes it. 
+
+To convert the words to all lowercase and replace ` with ', I used 
+tr "[:upper:]\`" "[:lower:]\'" 
+
+To space every word onto its own line and to remove spaces, I used
+sed 's/\s/\n/g' 
+Running this command led to a lot of unneccessary spaces, so to clean it up I first deleted all spaces at the start of each line:
+sed 's/\s*//g'
+
+There are still some commas, so I removed them using the following command:
+sed 's/,//g'
+
+To get the lines that only contain Hawaiian characters, I used:
+grep "^[pk\'mnwlhaeiou]\{1,\}$"
+which removes any words that contain non-Hawaiian characters. 
+
+
+Spellchecking
+-----
+To create hwords, I ran the command:
+cat hwnwdseng.htm | ./buildwords > hwords
+
+The last shell command can be modified to work with hwords as follows:
+cat assign2.html | tr "[:upper:]" "[:lower:]" | tr -cs "pk\'mnwlhaeiou" '[\n*]' | sort -u | comm -23 - hwords
+
+By appending the command:
+| wc -l
+There are 205 misspelled Hawaiian words in assign2.html. The first few are:
+'
+'a
+'h
+a
+ail
+ain
+ainin
+ake
+al
+ale
+alen
+ali
+all
+ameln
+amine
+...
+
+Using the command:
+cat assign2.html | tr "[:upper:]" "[:lower:]" | tr -cs "[:lower:]" '[\n*]' | sort -u | comm -23 - words | wc -l
+There are 15 misspelled English words in assign2.html:
+
+basedefs
+buildwords
+hwnwdseng
+hword
+hwords
+mauimapp
+moolelo
+ndash
+onlinepubs
+opengroup
+sameln
+vandebogart
+wget
+wikipedia
+
+
+To compare the two translations, I removed the | wc -l command and replaced it with > msh for the misspelled Hawaiian words
+and > mse for the misspelled English words.
+
+Using the command:
+comm -12 msh mse
+There are two words that are misspelled in both languages: mauimapp and moolelo.

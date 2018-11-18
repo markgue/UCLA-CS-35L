@@ -1,0 +1,30 @@
+#!/bin/bash
+
+#buildwords
+
+# Isolate just the lines with English and Hawaiian words
+grep '<td>.\{1,\}<\/td>' |
+
+# Remove all English words by deleting the first line then every other line
+sed '1d;n;d;' |
+
+# Remove all html formatting 
+sed 's/<.\{0,5\}>//g' |
+
+# Change to lowercase and replace ` with '
+tr "[:upper:]\`" "[:lower:]\'" |
+
+# Delete unneccessary spaces at the start of each line
+sed 's/\s*//g' |
+
+# Make multi-line words into single words
+sed 's/\s/\n/g' |
+
+# Remove commas
+sed 's/,//g' |
+
+# Delete each word that does not contain only Hawaiian characters
+grep "^[pk\'mnwlhaeiou]\{1,\}$" |
+
+# Sort the output
+sort -u

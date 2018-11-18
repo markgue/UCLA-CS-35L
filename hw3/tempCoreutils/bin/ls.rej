@@ -1,0 +1,34 @@
+--- NEWS
++++ NEWS
+@@ -4,6 +4,9 @@
+ 
+ ** Bug fixes
+ 
++  'ls -aA' is now equivalent to 'ls -A', since -A now overrides -a.
++  [bug introduced in coreutils-5.3.0]
++
+   'mv -n A B' no longer suffers from a race condition that can
+   overwrite a simultaneously-created B.  This bug fix requires
+   platform support for the renameat2 or renameatx_np syscalls, found
+--- ls.c
++++ ls.c
+@@ -1903,8 +1903,7 @@
+           break;
+ 
+         case 'A':
+-          if (ignore_mode == IGNORE_DEFAULT)
+-            ignore_mode = IGNORE_DOT_AND_DOTDOT;
++          ignore_mode = IGNORE_DOT_AND_DOTDOT;
+           break;
+ 
+         case 'B':
+--- local.mk
++++ local.mk
+@@ -575,6 +575,7 @@
+   tests/ln/sf-1.sh				\
+   tests/ln/slash-decorated-nonexistent-dest.sh	\
+   tests/ln/target-1.sh				\
++  tests/ls/a-option.sh				\
+   tests/ls/abmon-align.sh			\
+   tests/ls/block-size.sh			\
+   tests/ls/color-clear-to-eol.sh		\

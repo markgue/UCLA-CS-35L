@@ -1,0 +1,152 @@
+Mark Guevara
+704962920
+CS35L
+TA: Zhaowei Tan
+
+Assignment 5: sfrob.txt
+===================================
+
+For testing purposes, I created four files with various numbers of lines:
+
+File              Lines
+---------------------------
+small_frob.txt    500 
+med_frob.txt      5000 
+large_frob.txt    50000
+xlarge_frob.txt   500000
+
+Each line contains the following line from the sfrob test in assignment 4:
+*~BO *{_CIA *hXE]D *LER #@_GZY #E\\OX #^BO #FKPS #NEM\4 
+
+
+
+Small frob input (~28KB)
+====================
+
+time ./sfrob < testfiles/small_frob.txt
+real    0m0.012s
+user    0m0.008s
+sys     0m0.001s
+
+time ./sfrobu < testfiles/small_frob.txt
+real    0m0.042s
+user    0m0.006s
+sys     0m0.034s
+
+time ./sfrobs < testfiles/small_frob.txt
+real    0m0.010s
+user    0m0.003s
+sys     0m0.006s
+
+time ./sfrobu -f < testfiles/small_frob.txt
+real    0m0.040s
+user    0m0.014s
+sys     0m0.025s
+
+time ./sfrobs -f < testfiles/small_frob.txt
+real    0m0.015s
+user    0m0.004s
+sys     0m0.007s
+
+
+Medium frob input (~280KB)
+====================
+
+time ./sfrob < testfiles/med_frob.txt
+real    0m0.062s
+user    0m0.050s
+sys     0m0.010s
+
+time ./sfrobu < testfiles/med_frob.txt
+real    0m0.379s
+user    0m0.057s
+sys     0m0.320s
+
+time ./sfrobs < testfiles/med_frob.txt
+real    0m0.034s
+user    0m0.021s
+sys     0m0.014s
+
+time ./sfrobu -f < testfiles/med_frob.txt
+real    0m0.409s
+user    0m0.096s
+sys     0m0.311s
+
+time ./sfrobs -f < testfiles/med_frob.txt
+real    0m0.046s
+user    0m0.029s
+sys     0m0.016s
+
+
+Large frob input (~2800KB)
+====================
+
+time ./sfrob < testfiles/large_frob.txt
+real    0m0.889s
+user    0m0.621s
+sys     0m0.108s
+
+time ./sfrobu < testfiles/large_frob.txt
+real    0m3.875s
+user    0m0.745s
+sys     0m3.126s
+
+time ./sfrobs < testfiles/large_frob.txt
+real    0m0.424s
+user    0m0.195s
+sys     0m0.111s
+
+
+time ./sfrobu -f < testfiles/large_frob.txt
+real    0m4.367s
+user    0m1.108s
+sys     0m3.253s
+
+time ./sfrobs -f < testfiles/large_frob.txt
+real    0m0.613s
+user    0m0.313s
+sys     0m0.121s
+
+
+Very large frob input (~28000KB)
+====================
+
+time ./sfrob < testfiles/xlarge_frob.txt
+real    0m12.423s
+user    0m7.334s
+sys     0m1.163s
+
+time ./sfrobu < testfiles/xlarge_frob.txt
+real    0m41.447s
+user    0m8.609s
+sys     0m32.772s
+
+time ./sfrobs < testfiles/xlarge_frob.txt
+real    0m6.829s
+user    0m2.119s
+sys     0m0.965s
+
+time ./sfrobu -f < testfiles/xlarge_frob.txt
+real    0m45.090s
+user    0m12.482s
+sys     0m32.540s
+
+time ./sfrobs -f < testfiles/xlarge_frob.txt
+real    0m8.388s
+user    0m3.283s
+sys     0m0.835s
+
+
+Interpretation
+====================
+As expected, the unbuffered frob is siginificantly slower than 
+the buffered frob. The addition of the -f command adds makes both sfrobu and
+sfrobs run for a longer duration. All three functions (sfrob, sfrobu, 
+and sfrobs) scale roughly linearly in relation to the file size. 
+
+A few notes:
+*sfrob takes about twice as much time as sfrobs
+*sfrobs -f takes about 30% longer than sfrobs
+*sfrobu is nearly a full order of magnitude slower than sfrobs in most cases
+
+

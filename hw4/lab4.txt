@@ -1,0 +1,152 @@
+Mark Guevara
+704962920
+CS35L
+TA: Zhaowei Tan
+
+Assignment 4 Log
+=================================
+
+To start off, I downloaded and unzipped the coreutils-with-bug package:
+wget http://web.cs.ucla.edu/classes/spring18/cs35L/assign/coreutils-with-bug.ta
+r.gz
+tar -xzvf coreutils-with-bug.tar.gz
+
+From there, I entered the directory and ran the following commands:
+cd coreutils-with-bug
+./configure
+make
+
+At this point, I encountered the following error with make:
+
+make[3]: Entering directory '/w/home.17/cs/ugrad/guevara/Desktop/CS35L/hw4/coreutils-with-bug/lib'
+if gcc -DHAVE_CONFIG_H -DLIBDIR=\"/usr/local/lib\" -I. -I. -I..  -I.. -I.   -g -O2 -MT utimecmp.o -MD -MP -MF ".deps/utimecmp.Tpo" -c -o utimecmp.o utimecmp.c; \
+then mv -f ".deps/utimecmp.Tpo" ".deps/utimecmp.Po"; else rm -f ".deps/utimecmp.Tpo"; exit 1; fi
+In file included from utimecmp.c:41:0:
+utimens.h:2:5: error: conflicting types for 'futimens'
+ int futimens (int, char const *, struct timespec const [2]);
+     ^
+In file included from utimecmp.h:25:0,
+                 from utimecmp.c:25:
+/usr/include/sys/stat.h:374:12: note: previous declaration of 'futimens' was here
+ extern int futimens (int __fd, __const struct timespec __times[2]) __THROW;
+            ^
+Makefile:659: recipe for target 'utimecmp.o' failed
+make[3]: *** [utimecmp.o] Error 1
+make[3]: Leaving directory '/w/home.17/cs/ugrad/guevara/Desktop/CS35L/hw4/coreutils-with-bug/lib'
+Makefile:414: recipe for target 'all' failed
+make[2]: *** [all] Error 2
+make[2]: Leaving directory '/w/home.17/cs/ugrad/guevara/Desktop/CS35L/hw4/coreutils-with-bug/lib'
+Makefile:419: recipe for target 'all-recursive' failed
+make[1]: *** [all-recursive] Error 1
+make[1]: Leaving directory '/w/home.17/cs/ugrad/guevara/Desktop/CS35L/hw4/coreutils-with-bug'
+Makefile:357: recipe for target 'all' failed
+make: *** [all] Error 2
+
+There is an error with the installation of the files related to "utimecmp". 
+Running the following set of commands gets the patch and installs it:
+
+wget http://web.cs.ucla.edu/classes/spring18/cs35L/assign/coreutils.diff
+patch -p0 < coreutils.diff
+
+This applies the patch and renames some of the functions in utimens.c, utimens,h, copy.c, and tee.c.
+After the patch has been applied, running make again works with no errors. The patch fixed the issue.
+
+From there, I entered coreutils-with-bug/src and created a bash script "test.sh" with the following script (from the lab):
+
+tmp=$(mktemp -d)
+cd $tmp
+touch -d '1918-11-11 11:00 GMT' wwi-armistice
+touch now
+sleep 1
+touch now1
+TZ=UTC0 ~/Desktop/CS35L/hw4/coreutils-with-bug/src/ls -lt --full-time wwi-armistice now now1
+cd
+rm -fr $tmp
+
+The file outputs the following, reproducing the bug:
+-rw-r--r-- 1 guevara csugrad 0 1918-11-11 11:00:00.000000000 +0000 wwi-armistice
+-rw-r--r-- 1 guevara csugrad 0 2018-05-02 18:11:24.001013522 +0000 now1
+-rw-r--r-- 1 guevara csugrad 0 2018-05-02 18:11:22.996968778 +0000 now
+
+To start debugging, I opened the installed version of ls in gdb:
+gdb ./ls
+
+I also opened up the source file ls.c to read through and find what functions might be relevant.
+Some that seemed like they may contain the source of the bug:
+sort_files()
+compare_ctime()
+compare_mtime()
+compare_atime()
+cmp_ctime()
+cmp_mtime()
+cmp_atime()
+
+I placed a breakpoint at each of these functions and in gdb, ran the following command:
+(gdb) run -lt wwi-armistice now1 now
+
+The program breaks at sort_files(). I then repeated the "next" command to see what functions were executing.
+Of the other functions listed above, only compare_mtime() is ever executed after sort_files() breaks. 
+
+In gdb, I removed the breakpoints all but those two functions. 
+
+Stepping through thse functions with "step" shows a function in the file /lib/timespec.h:
+
+43      /* Return negative, zero, positive if A < B, A == B, A > B, respectively.
+44         Assume the nanosecond components are in range, or close to it.  */
+45      static inline int
+46      timespec_cmp (struct timespec a, struct timespec b)
+47      {
+48        int diff = a.tv_sec - b.tv_sec;
+49        return diff ? diff : a.tv_nsec - b.tv_nsec;
+50      }
+51
+52      # if ! HAVE_DECL_NANOSLEEP
+
+This function is likely causing the issue. The use of subtraction means that for extremely large values,
+there is a chance of overflow. Using "info locals" confirms that it may be overflowing. 
+
+I copied the bugged file to a different directory:
+cp timespec.h ../../
+
+I replaced the tiemspec_cmp function with the following code:
+
+static inline int
+timespec_cmp (struct timespec a, struct timespec b)
+{
+  if (a.tv_sec < b.tv_sec) {return -1;}
+  return !(a.tv_sec == b.tv_sec);
+}
+
+I then created a diff file with the command:
+diff -u coreutils-with-bug/lib/timespec.h timespec.h > lab4.diff
+
+I then patched the file using the command:
+patch -p0 < lab4.diff
+
+I then entered the directory /coreutils-with-bug and ran "make". I then ran the patched ls
+located in /coreutils-with-bug/src/ using the bash script I created earlier. It gave the following output:
+
+-rw-r--r-- 1 guevara csugrad 0 2018-05-04 18:29:23.676196223 +0000 now1
+-rw-r--r-- 1 guevara csugrad 0 2018-05-04 18:29:22.656152113 +0000 now
+-rw-r--r-- 1 guevara csugrad 0 1918-11-11 11:00:00.000000000 +0000 wwi-armistice
+
+This means that the patch worked. 	
+
+
+In order to try and reproduce the problem in my home directory, I used "cd ~" then ran the following commands
+from the provided test case:
+touch -d '1918-11-11 11:00 GMT' wwi-armistice
+touch now
+sleep 1
+touch now1
+TZ=UTC0 ls -lt --full-time wwi-armistice now now1
+
+This outputs the following:
+-rw-r--r-- 1 guevara csugrad 0 2054-12-17 17:28:16.000000000 +0000 wwi-armistice
+-rw-r--r-- 1 guevara csugrad 0 2018-05-04 19:13:15.120402000 +0000 now1
+-rw-r--r-- 1 guevara csugrad 0 2018-05-04 19:13:14.088306000 +0000 now
+
+The date of wwi-armistice is placed in the future at the home directory. 
+The reason this occurs is because the home directory on the SEASnet uses 32-bit time stamps,
+but the tmp directory uses 64-bit time stamps, so the time of the wwi-armistice is misinterpreted
+and displays as a time in the future. 

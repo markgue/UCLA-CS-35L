@@ -1,0 +1,12 @@
+--- src/ls.c
++++ src/ls.c
+@@ -1903,8 +1903,7 @@
+           break;
+ 
+         case 'A':
+-          if (ignore_mode == IGNORE_DEFAULT)
+-            ignore_mode = IGNORE_DOT_AND_DOTDOT;
++          ignore_mode = IGNORE_DOT_AND_DOTDOT;
+           break;
+ 
+         case 'B':

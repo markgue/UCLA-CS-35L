@@ -1,0 +1,53 @@
+Mark Guevara
+704962920
+CS 35L
+TA: Zhaowei Tan
+
+Lab 7: log.txt
+====================
+
+My partner for this lab was Kameron Carr.
+
+To begin, I installed the necessary drivers onto my Windows laptop for
+the BeagleBone. This involved a roundabout process of disabling driver
+authentication in my OS then running the installation drivers.
+From there, I used PuTTY to connect to the board directly then followed the
+instructions listed on Piazza and connected to the classroom wifi then 
+downloaded the necessary software. 
+
+From there, I created a user for my partner to connect by running the commands:
+
+# create the user "guest"
+sudo useradd -d /home/guest -m guest
+
+# set the password to "password"
+sudo passwd guest
+
+# give the user permissions to a .ssh directory 
+cd /home/guest
+sudo mkdir .ssh
+sudo chown -R guest .ssh
+sudo chmod 700 .ssh
+
+Then, I used ifconfig to determine my BeagleBone's IP address, then provided
+the IP, username, and password to my partner. He was able to connect to my 
+board.  
+
+My partner performed the same setup steps as I did (down to the username and
+password). To connect to his BeagleBone, I used the following commands:
+
+# Create a pair of keys
+ssh-keygen
+
+# copy to his BeagleBone
+ssh-copy-id -i guest@10.97.85.51
+
+# add private key to authentication agent then verify it works
+ssh-add
+eval `ssh-agent`
+
+# connect to the BeagleBone using ssh
+ssh -X guest@10.97.85.51
+
+From there, I ran "xterm" to verify that I could open a window. 
+I then disconnected using "exit".

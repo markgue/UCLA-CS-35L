@@ -1,0 +1,55 @@
+lib/getopt1.o: lib/getopt1.c lib/config.h lib/getopt.h lib/getopt.h \
+ /usr/include/getopt.h lib/ctype.h /usr/include/ctype.h \
+ /usr/include/features.h /usr/include/sys/cdefs.h \
+ /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
+ /usr/include/gnu/stubs-64.h /usr/include/bits/types.h \
+ /usr/include/bits/typesizes.h /usr/include/endian.h \
+ /usr/include/bits/endian.h /usr/include/bits/byteswap.h \
+ /usr/include/xlocale.h lib/getopt-cdefs.h lib/getopt-pfx-core.h \
+ lib/getopt-core.h lib/getopt-pfx-ext.h lib/getopt-ext.h lib/getopt_int.h
+
+lib/config.h:
+
+lib/getopt.h:
+
+lib/getopt.h:
+
+/usr/include/getopt.h:
+
+lib/ctype.h:
+
+/usr/include/ctype.h:
+
+/usr/include/features.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/bits/wordsize.h:
+
+/usr/include/gnu/stubs.h:
+
+/usr/include/gnu/stubs-64.h:
+
+/usr/include/bits/types.h:
+
+/usr/include/bits/typesizes.h:
+
+/usr/include/endian.h:
+
+/usr/include/bits/endian.h:
+
+/usr/include/bits/byteswap.h:
+
+/usr/include/xlocale.h:
+
+lib/getopt-cdefs.h:
+
+lib/getopt-pfx-core.h:
+
+lib/getopt-core.h:
+
+lib/getopt-pfx-ext.h:
+
+lib/getopt-ext.h:
+
+lib/getopt_int.h:
